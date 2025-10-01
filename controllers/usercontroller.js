@@ -92,7 +92,7 @@ export const login = async (req, res) => {
             });
         }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || "sahib", {
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "Sahibdeep", {
             expiresIn: '1d'
         });
 
@@ -136,72 +136,65 @@ export const login = async (req, res) => {
 //         console.log(error);
 //     }
 // };
-// export const updateProfile = async (req, res) => {
-//     try {
-//         const { fullname, email, phoneNumber, bio, skills } = req.body;
-//         const file = req.file;
+export const updateProfile = async (req, res) => {
+    try {
+        const { fullname, email, phoneNumber, bio, skills } = req.body;
+       
 
-//         let cloudResponse;
-//         if (file) {
-//             cloudResponse = await uploadImage(file.path);
-//         }
+       
+        let skillsArray;
+        if (skills) {
+            skillsArray = skills.split(",").map(s => s.trim());
+        }
 
-//         let skillsArray;
-//         if (skills) {
-//             skillsArray = skills.split(",").map(s => s.trim());
-//         }
+        const userId = req.id; // from auth middleware
+        let user = await User.findById(userId);
 
-//         const userId = req.id; // from auth middleware
-//         let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found.",
+                success: false
+            });
+        }
 
-//         if (!user) {
-//             return res.status(404).json({
-//                 message: "User not found.",
-//                 success: false
-//             });
-//         }
+        // Ensure profile object exists
+        user.profile = user.profile || {};
 
-//         // Ensure profile object exists
-//         user.profile = user.profile || {};
+        // Update fields
+        if (fullname) user.fullname = fullname;
+        if (email) user.email = email;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+        if (bio) user.profile.bio = bio;
+        if (skills) user.profile.skills = skillsArray;
 
-//         // Update fields
-//         if (fullname) user.fullname = fullname;
-//         if (email) user.email = email;
-//         if (phoneNumber) user.phoneNumber = phoneNumber;
-//         if (bio) user.profile.bio = bio;
-//         if (skills) user.profile.skills = skillsArray;
+    
 
-//         if (cloudResponse) {
-//             user.profile.resume = cloudResponse.secure_url;
-//             user.profile.resumeOriginalName = file.originalname;
-//         }
+        await user.save();
 
-//         await user.save();
+        const userData = {
+            _id: user._id,
+            fullname: user.fullname,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            role: user.role,
+            profile: user.profile
+        };
 
-//         const userData = {
-//             _id: user._id,
-//             fullname: user.fullname,
-//             email: user.email,
-//             phoneNumber: user.phoneNumber,
-//             role: user.role,
-//             profile: user.profile
-//         };
+        return res.status(200).json({
+            message: "Profile updated successfully.",
+            user: userData,
+            success: true
+        });
 
-//         return res.status(200).json({
-//             message: "Profile updated successfully.",
-//             user: userData,
-//             success: true
-//         });
-
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({
-//             message: "Internal server error",
-//             success: false,
-//             error: error.message
-//         });
-//     }
-// };
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message
+        });
+    }
+};
 
 
  

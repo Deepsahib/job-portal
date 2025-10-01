@@ -1,8 +1,9 @@
 import express from "express";
 // import upload from "../config/multer.js";
 // import verifyjwt from "../middleware/authmiddleware.js";
-import { login, register } from "../controllers/usercontroller.js";
+import { login, register, updateProfile } from "../controllers/usercontroller.js";
 import upload from "../config/multer.js";
+import verifyjwt from "../middleware/authmiddleware.js";
 const router = express.Router();
 router.post("/register", upload.single("file"),register);
 
@@ -13,6 +14,6 @@ router.post("/login", login);
 // router.post("/logout", userController.logout);
 
 // // Update profile (protected)
-// router.put("/profile", verifyjwt, upload.single("profile"), userController.updateProfile);
+router.put("/profile", verifyjwt, updateProfile);
 
 export default router;
