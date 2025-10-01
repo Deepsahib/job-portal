@@ -1,5 +1,4 @@
-// imageupload.js
-import cloudinary from './cloudinaryconfig.js'; // ✅ Import the already configured instance
+import cloudinary from "./cloudinary.js";
 import fs from 'fs';
 const uploadImage = async (filePath) => {
   try {
